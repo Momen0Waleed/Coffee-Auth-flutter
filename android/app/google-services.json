@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "437191961894",
+    "firebase_url": "https://coffe-77abb-default-rtdb.firebaseio.com",
+    "project_id": "coffe-77abb",
+    "storage_bucket": "coffe-77abb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:437191961894:android:c63e5df505de77aca125e7",
+        "android_client_info": {
+          "package_name": "com.example.coffee"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEHhojYdt0VWSOp6EJ57MaMWUzot2cC7c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:437191961894:android:56b0507bba1dfe02a125e7",
+        "android_client_info": {
+          "package_name": "com.example.project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEHhojYdt0VWSOp6EJ57MaMWUzot2cC7c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
