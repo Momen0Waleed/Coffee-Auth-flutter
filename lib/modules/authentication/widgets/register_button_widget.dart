@@ -1,5 +1,6 @@
 import 'package:coffee/core/constants/theme/colors/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bounceable/flutter_bounceable.dart';
 
 class RegisterButtonWidget extends StatelessWidget {
   const RegisterButtonWidget({
@@ -14,7 +15,7 @@ class RegisterButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Bounceable(
       onTap: buttonAction,
       child: Container(
         width: double.infinity,
