@@ -50,6 +50,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
         minLines: widget.minlines,
         validator: widget.validator,
         onChanged: widget.onChanged,
+        cursorColor: AppColors.gold,
         obscureText: widget.isPassword
             ? (widget.isPassword ? obscurePassword : false)
             : false,
