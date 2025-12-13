@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -141,23 +142,24 @@ class _LoginScreenState extends State<LoginScreen> {
                                   // Ensure the widget is still in the tree before using context
                                   if (!context.mounted) return;
 
-                                  final userDoc = await FirebaseFirestore.instance
-                                      .collection("users")
-                                      .doc(uid)
-                                      .get();
 
-                                  if (!userDoc.exists) {
-                                    await FirebaseFirestore.instance.collection("users").doc(uid).set({
-                                      "email": FirebaseAuth.instance.currentUser!.email,
-                                      "createdAt": FieldValue.serverTimestamp(),
-                                    });
-                                  }
+                                  // print("\n1\n");
+                                  // --- NAVIGATE BACK TO ANDROID APP ---
+                                  // We create the link: coffeeandroid://home?uid=THE_USER_ID
+                                  final Uri androidAppUrl = Uri.parse("coffeeandroid://home?uid=$uid");
+                                  // print("\n2\n");
+                                  if (await canLaunchUrl(androidAppUrl)) {
+                                    // print("\n3\n");
+                                    await launchUrl(androidAppUrl, mode: LaunchMode.externalApplication);
+                                    // print("\n4\n");
+                                  } else {
+                                    // print("\n5\n");
+                                    SnackbarService.showErrorNotification("Could not launch Android App");
+                                    // print("\n9\n");
 
-                                  // UNCOMMENT THIS LINE so the user actually goes to the app!
-                                  if (context.mounted) {
-                                    // Navigator.of(context).pushReplacementNamed(PageRoutesName.layout);
-                                    SnackbarService.showSuccessNotification("Done");
                                   }
+                                  // ------------------------------------
+
                                 });
                               } else {
                                 setState(() { errorHeight = 10; });
