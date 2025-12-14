@@ -119,7 +119,6 @@ class _CreateAccountState extends State<CreateAccount> {
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      // inside register button action
                       buttonAction: () {
                         if (_formKey.currentState!.validate()) {
                           setState(() {
@@ -130,26 +129,21 @@ class _CreateAccountState extends State<CreateAccount> {
                             emailAddress: mailController.text,
                             password: passwordController.text,
                           ).then((value) async {
-                            // 1. Move dismiss to the TOP so it runs regardless of success/failure
                             EasyLoading.dismiss();
 
-                            // 2. Check if creation succeeded BEFORE accessing currentUser
                             if (value == true) {
-                              // 3. Wrap profile updates in a try-catch block for safety
                               try {
                                 if (FirebaseAuth.instance.currentUser != null) {
                                   await FirebaseAuth.instance.currentUser!
                                       .updateDisplayName(nameController.text);
                                   await FirebaseAuth.instance.currentUser!.reload();
                                 }
-                                // 4. Navigate only after success
                                 if (context.mounted) {
                                   SnackbarService.showSuccessNotification("Created");
                                   Timer(Duration(seconds: 5), (){});
                                   Navigator.pop(context);
                                 }
                               } catch (e) {
-                                // Handle profile update errors if needed
                                 print("Profile update error: $e");
                               }
                             }
