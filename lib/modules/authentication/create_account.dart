@@ -11,7 +11,6 @@ import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
 import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({super.key});
@@ -133,59 +132,19 @@ class _CreateAccountState extends State<CreateAccount> {
                             EasyLoading.dismiss();
 
                             if (value == true) {
-                              // try {
-                              //   if (FirebaseAuth.instance.currentUser != null) {
-                              //     await FirebaseAuth.instance.currentUser!
-                              //         .updateDisplayName(nameController.text);
-                              //     await FirebaseAuth.instance.currentUser!.reload();
-                              //   }
-                              //   if (context.mounted) {
-                              //     SnackbarService.showSuccessNotification("Created");
-                              //     Timer(Duration(seconds: 5), (){});
-                              //     Navigator.pop(context);
-                              //   }
-                              // } catch (e) {
-                              //   print("Profile update error: $e");
-                              // }
-
                               try {
-                                final user = FirebaseAuth.instance.currentUser;
-                                if (user != null) {   // 1. Update the display name in Firebase (This is still good practice)
-                                  await user.updateDisplayName(nameController.text);
-
-                                  // 2. Reload the user profile to save the change
-                                  await user.reload();
-
-                                  // 3. Re-fetch the user object to be safe
-                                  final freshUser = FirebaseAuth.instance.currentUser;
-                                  if (freshUser == null) {
-                                    SnackbarService.showErrorNotification("Could not verify user session.");
-                                    return;
-                                  }
-
-                                  // 4. Get the UID from the fresh user object
-                                  final String uid = freshUser.uid;
-
-                                  // 5. Build the deep link URI using the UID
-                                  final Uri androidAppUrl = Uri.parse("coffeeandroid://home?uid=$uid");
-
-                                  if (context.mounted) {
-                                    // 6. Launch the native Android App
-                                    if (await canLaunchUrl(androidAppUrl)) {
-                                      await launchUrl(androidAppUrl, mode: LaunchMode.externalApplication);
-
-                                      // (Optional) You can still pop this screen after launching
-                                      // Navigator.pop(context);
-                                    } else {
-                                      SnackbarService.showErrorNotification("Account created, but could not launch app.");
-                                    }
-                                  }
+                                if (FirebaseAuth.instance.currentUser != null) {
+                                  await FirebaseAuth.instance.currentUser!
+                                      .updateDisplayName(nameController.text);
+                                  await FirebaseAuth.instance.currentUser!.reload();
+                                }
+                                if (context.mounted) {
+                                  SnackbarService.showSuccessNotification("Created");
+                                  Timer(Duration(seconds: 5), (){});
+                                  Navigator.pop(context);
                                 }
                               } catch (e) {
-                                print("Profile update or launch error: $e");
-                                if(context.mounted){
-                                  SnackbarService.showErrorNotification("An error occurred updating your profile.");
-                                }
+                                print("Profile update error: $e");
                               }
                             }
                           });

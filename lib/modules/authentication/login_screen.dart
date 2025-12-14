@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coffee/core/constants/images/images_dir.dart';
 import 'package:coffee/core/constants/routes/page_routes_name.dart';
 import 'package:coffee/core/constants/services/snackbar_service.dart';
@@ -145,7 +144,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                   if (!context.mounted) return;
 
-                                  // 2. Build the deep link URI using the UID.
                                   final Uri androidAppUrl = Uri.parse("coffeeandroid://home?uid=$uid");
 
                                   if (await canLaunchUrl(androidAppUrl)) {
