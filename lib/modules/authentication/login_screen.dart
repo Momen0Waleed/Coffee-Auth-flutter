@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coffee/core/constants/images/images_dir.dart';
 import 'package:coffee/core/constants/routes/page_routes_name.dart';
 import 'package:coffee/core/constants/services/snackbar_service.dart';
@@ -10,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -122,7 +122,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            // inside Login button action
                             buttonAction: () {
                               if (_formKey.currentState!.validate()) {
                                 setState(() { errorHeight = 25; });
@@ -132,32 +131,27 @@ class _LoginScreenState extends State<LoginScreen> {
                                   emailAddress: mailController.text.trim(),
                                   password: passwordController.text.trim(),
                                 ).then((success) async {
-                                  EasyLoading.dismiss(); // This is correct, it runs immediately.
+                                  EasyLoading.dismiss();
 
                                   if (!success) return; // Stop if login failed
 
-                                  final uid = FirebaseAuth.instance.currentUser!.uid;
+                                  final user = FirebaseAuth.instance.currentUser;
+                                  if (user == null) {
+                                    SnackbarService.showErrorNotification("Could not retrieve user details.");
+                                    return;
+                                  }
+                                  final String uid = user.uid;
 
-                                  // Ensure the widget is still in the tree before using context
                                   if (!context.mounted) return;
 
-                                  final userDoc = await FirebaseFirestore.instance
-                                      .collection("users")
-                                      .doc(uid)
-                                      .get();
+                                  final Uri androidAppUrl = Uri.parse("coffeeandroid://home?uid=$uid");
 
-                                  if (!userDoc.exists) {
-                                    await FirebaseFirestore.instance.collection("users").doc(uid).set({
-                                      "email": FirebaseAuth.instance.currentUser!.email,
-                                      "createdAt": FieldValue.serverTimestamp(),
-                                    });
+                                  if (await canLaunchUrl(androidAppUrl)) {
+                                    await launchUrl(androidAppUrl, mode: LaunchMode.externalApplication);
+                                  } else {
+                                    SnackbarService.showErrorNotification("Could not launch Android App");
                                   }
 
-                                  // UNCOMMENT THIS LINE so the user actually goes to the app!
-                                  if (context.mounted) {
-                                    // Navigator.of(context).pushReplacementNamed(PageRoutesName.layout);
-                                    SnackbarService.showSuccessNotification("Done");
-                                  }
                                 });
                               } else {
                                 setState(() { errorHeight = 10; });

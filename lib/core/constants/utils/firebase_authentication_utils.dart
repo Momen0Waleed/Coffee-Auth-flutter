@@ -26,7 +26,7 @@ abstract class FirebaseAuthenticationUtils {
       }
       return Future.value(false);
     } catch (e) {
-      // SnackbarService.showErrorNotification("Something Went Wrong");
+      SnackbarService.showErrorNotification("Something Went Wrong");
       return Future.value(false);
     }
   }
@@ -49,7 +49,7 @@ abstract class FirebaseAuthenticationUtils {
         case 'user-disabled':
           SnackbarService.showErrorNotification("This account has been disabled.");
           break;
-        case 'invalid-credential': // covers both user-not-found & wrong-password
+        case 'invalid-credential':
           SnackbarService.showErrorNotification("Invalid email or password.");
           break;
         default:
