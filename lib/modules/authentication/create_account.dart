@@ -1,10 +1,15 @@
+import 'dart:async';
+
+import 'package:coffee/core/constants/images/images_dir.dart';
 import 'package:coffee/core/constants/routes/page_routes_name.dart';
+import 'package:coffee/core/constants/services/snackbar_service.dart';
 import 'package:coffee/core/constants/theme/colors/app_colors.dart';
 import 'package:coffee/core/constants/utils/firebase_authentication_utils.dart';
 import 'package:coffee/modules/authentication/widgets/register_button_widget.dart';
 import 'package:coffee/modules/authentication/widgets/text_field_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
 import 'package:flutter/material.dart';
+import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class CreateAccount extends StatefulWidget {
@@ -20,10 +25,12 @@ class _CreateAccountState extends State<CreateAccount> {
   final mailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+    double errorHeight = 25;
 
   @override
   Widget build(BuildContext context) {
     var textTheme = Theme.of(context).textTheme;
+    var dynamicSize = MediaQuery.of(context).size;
 
     return Scaffold(
       appBar: AppBar(
@@ -33,8 +40,7 @@ class _CreateAccountState extends State<CreateAccount> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: Icon(Icons.arrow_back, color: AppColors.gold
-              , size: 30),
+          icon: Icon(Icons.arrow_back, color: AppColors.gold, size: 30),
         ),
         title: Text("Register"),
       ),
@@ -45,14 +51,11 @@ class _CreateAccountState extends State<CreateAccount> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Image.asset(
-              //   ImagesName.splashLogo,
-              //   width: dynamicSize.width * 0.4,
-              // ),
+              Image.asset(ImagesDir.logo, width: dynamicSize.width * 0.4),
               Form(
                 key: _formKey,
                 child: Column(
-                  spacing: 15,
+                  spacing: errorHeight,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -106,9 +109,9 @@ class _CreateAccountState extends State<CreateAccount> {
                       validator: validateConfirmPassword,
                       controller: confirmPasswordController,
                     ),
+                    SizedBox(height: 10),
                     RegisterButtonWidget(
-                      bgColor: AppColors.gold
-                      ,
+                      bgColor: AppColors.gold,
                       child: Text(
                         "Create Account",
                         style: textTheme.titleMedium!.copyWith(
@@ -117,25 +120,66 @@ class _CreateAccountState extends State<CreateAccount> {
                         textAlign: TextAlign.center,
                       ),
                       buttonAction: () {
-                        setState(() async {
-                          if (_formKey.currentState!.validate()) {
-                            EasyLoading.show();
-                            FirebaseAuthenticationUtils.createUserWithEmailAndPassword(
-                              emailAddress: mailController.text,
-                              password: passwordController.text,
-                            ).then((value) async {
-                              await FirebaseAuth.instance.currentUser!
-                                  .updateDisplayName(nameController.text);
-                              await FirebaseAuth.instance.currentUser!.reload();
-                              if (value) {
-                                EasyLoading.dismiss();
-                                // ignore: use_build_context_synchronously
-                                Navigator.pop(context);
+                        if (_formKey.currentState!.validate()) {
+                          setState(() {
+                            errorHeight = 25;
+                          });
+                          EasyLoading.show();
+                          FirebaseAuthenticationUtils.createUserWithEmailAndPassword(
+                            emailAddress: mailController.text,
+                            password: passwordController.text,
+                          ).then((value) async {
+                            EasyLoading.dismiss();
+
+                            if (value == true) {
+                              try {
+                                if (FirebaseAuth.instance.currentUser != null) {
+                                  await FirebaseAuth.instance.currentUser!
+                                      .updateDisplayName(nameController.text);
+                                  await FirebaseAuth.instance.currentUser!.reload();
+                                }
+                                if (context.mounted) {
+                                  SnackbarService.showSuccessNotification("Created");
+                                  Timer(Duration(seconds: 5), (){});
+                                  Navigator.pop(context);
+                                }
+                              } catch (e) {
+                                print("Profile update error: $e");
                               }
-                            });
-                          }
-                        });
+                            }
+                          });
+                        } else {
+                          setState(() {
+                            errorHeight = 10;
+                          });
+                        }
                       },
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            height: 3,
+                            color: AppColors.gold,
+                            indent: 10,
+                            endIndent: 10,
+                          ),
+                        ),
+                        Text(
+                          " OR ",
+                          style: textTheme.bodyLarge!.copyWith(
+                            color: AppColors.black,
+                          ),
+                        ),
+                        Expanded(
+                          child: Divider(
+                            height: 3,
+                            color: AppColors.gold,
+                            indent: 10,
+                            endIndent: 10,
+                          ),
+                        ),
+                      ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -147,8 +191,8 @@ class _CreateAccountState extends State<CreateAccount> {
                             color: AppColors.black,
                           ),
                         ),
-                        TextButton(
-                          onPressed: () {
+                        Bounceable(
+                          onTap: () {
                             Navigator.of(
                               context,
                             ).pushNamed(PageRoutesName.login);
@@ -156,12 +200,12 @@ class _CreateAccountState extends State<CreateAccount> {
                           child: Text(
                             "Login",
                             style: textTheme.bodyLarge!.copyWith(
-                              color: AppColors.gold
-                              ,
+                              color: AppColors.gold,
                               fontStyle: FontStyle.italic,
                               decoration: TextDecoration.underline,
-                              decorationColor: AppColors.gold
-                              ,
+                              decorationColor: AppColors.gold,
+                              decorationStyle: TextDecorationStyle.solid,
+                              decorationThickness: 1.5,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -201,7 +245,7 @@ class _CreateAccountState extends State<CreateAccount> {
       return "Password is Required";
     }
     final passwordRegex = RegExp(
-      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$',
+      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{6,}$',
     );
     if (!passwordRegex.hasMatch(value)) {
       return "Password must contain uppercase, lowercase,\nnumber, and special character.";
