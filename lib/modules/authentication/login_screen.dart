@@ -123,7 +123,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            // inside Login button action
                             buttonAction: () {
                               if (_formKey.currentState!.validate()) {
                                 setState(() { errorHeight = 25; });
@@ -133,32 +132,27 @@ class _LoginScreenState extends State<LoginScreen> {
                                   emailAddress: mailController.text.trim(),
                                   password: passwordController.text.trim(),
                                 ).then((success) async {
-                                  EasyLoading.dismiss(); // This is correct, it runs immediately.
+                                  EasyLoading.dismiss();
 
                                   if (!success) return; // Stop if login failed
 
-                                  final uid = FirebaseAuth.instance.currentUser!.uid;
+                                  final user = FirebaseAuth.instance.currentUser;
+                                  if (user == null) {
+                                    SnackbarService.showErrorNotification("Could not retrieve user details.");
+                                    return;
+                                  }
+                                  final String uid = user.uid;
 
-                                  // Ensure the widget is still in the tree before using context
                                   if (!context.mounted) return;
 
-
-                                  // print("\n1\n");
-                                  // --- NAVIGATE BACK TO ANDROID APP ---
-                                  // We create the link: coffeeandroid://home?uid=THE_USER_ID
+                                  // 2. Build the deep link URI using the UID.
                                   final Uri androidAppUrl = Uri.parse("coffeeandroid://home?uid=$uid");
-                                  // print("\n2\n");
-                                  if (await canLaunchUrl(androidAppUrl)) {
-                                    // print("\n3\n");
-                                    await launchUrl(androidAppUrl, mode: LaunchMode.externalApplication);
-                                    // print("\n4\n");
-                                  } else {
-                                    // print("\n5\n");
-                                    SnackbarService.showErrorNotification("Could not launch Android App");
-                                    // print("\n9\n");
 
+                                  if (await canLaunchUrl(androidAppUrl)) {
+                                    await launchUrl(androidAppUrl, mode: LaunchMode.externalApplication);
+                                  } else {
+                                    SnackbarService.showErrorNotification("Could not launch Android App");
                                   }
-                                  // ------------------------------------
 
                                 });
                               } else {
